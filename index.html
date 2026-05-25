@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEG Digital Operations MVP</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f6f8; color: #0f172a; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; padding: 20px; }
+    .brand { background: #0f172a; color: white; padding: 18px; border-radius: 18px; margin-bottom: 24px; }
+    .brand p { margin: 0; font-size: 12px; text-transform: uppercase; color: #cbd5e1; }
+    .brand h1 { font-size: 20px; margin: 8px 0; }
+    .brand span { font-size: 12px; color: #cbd5e1; }
+    .nav { display: block; width: 100%; border: none; background: transparent; padding: 14px; margin-bottom: 8px; border-radius: 14px; text-align: left; font-weight: 600; color: #475569; cursor: pointer; }
+    .nav:hover { background: #f1f5f9; }
+    .nav.active { background: #0f172a; color: white; }
+    .main { flex: 1; padding: 28px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; }
+    .label { font-size: 12px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 1px; }
+    .actions { display: flex; gap: 12px; }
+    input { padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 14px; min-width: 260px; }
+    button.primary, button.secondary { border: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; cursor: pointer; }
+    button.primary { background: #0f172a; color: white; }
+    button.secondary { background: white; border: 1px solid #cbd5e1; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08); margin-bottom: 20px; }
+    .metric-card h2 { font-size: 34px; margin: 8px 0; }
+    .small { font-size: 13px; }
+    .muted { color: #64748b; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+    th { text-align: left; color: #64748b; font-size: 13px; padding: 10px; }
+    td { background: white; padding: 14px 10px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
+    td:first-child { border-left: 1px solid #e5e7eb; border-radius: 12px 0 0 12px; }
+    td:last-child { border-right: 1px solid #e5e7eb; border-radius: 0 12px 12px 0; }
+    .badge { padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+    .green { background: #dcfce7; color: #166534; }
+    .blue { background: #dbeafe; color: #1d4ed8; }
+    .gray { background: #f1f5f9; color: #475569; }
+    .red { background: #fee2e2; color: #b91c1c; }
+    .checklist { margin-top: 16px; }
+    .task { display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e7eb; background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .section-head { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+    .master-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .list { display: grid; gap: 10px; }
+    .list-item { background: #f8fafc; border: 1px solid #e5e7eb; padding: 12px; border-radius: 12px; font-weight: 600; }
+    @media (max-width: 900px) {
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .topbar, .actions, .section-head { flex-direction: column; align-items: stretch; }
+      .metrics, .master-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <p>SEG Prototype</p>
+        <h1>Digital Operations Platform</h1>
+        <span>AI-assisted MVP concept</span>
+      </div>
+      <button class="nav active" onclick="showPage('Dashboard', this)">Dashboard</button>
+      <button class="nav" onclick="showPage('Jobs', this)">Jobs</button>
+      <button class="nav" onclick="showPage('Schedule', this)">Schedule</button>
+      <button class="nav" onclick="showPage('Field Execution', this)">Field Execution</button>
+      <button class="nav" onclick="showPage('Documents', this)">Documents</button>
+      <button class="nav" onclick="showPage('Master Data', this)">Master Data</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="label">Operations MVP</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="actions">
+          <input id="searchBox" placeholder="Search jobs, wells, crews..." oninput="renderCurrent()" />
+          <button class="primary" onclick="addJob()">+ New Job</button>
+        </div>
+      </header>
+      <div id="content"></div>
+    </main>
+  </div>
+
+  <script>
+    let activePage = "Dashboard";
+    let jobs = [
+      { id: "JOB-1001", customer: "Matador Production", well: "RAES CREEK 095H", service: "Mud Logging", crew: "Crew A", location: "LA", start: "2026-05-26", end: "2026-05-28", status: "In Progress", billing: "Pending", documents: 3 },
+      { id: "JOB-1002", customer: "Permian Oil Corp", well: "PRAIRIE STATE 22-8H", service: "Gas Detection", crew: "Crew B", location: "W TX", start: "2026-05-27", end: "2026-05-29", status: "Scheduled", billing: "Not Ready", documents: 1 },
+      { id: "JOB-1003", customer: "Frontier Energy", well: "EAGLE FORD 13-61A", service: "Wellsite Logging", crew: "Crew C", location: "OK", start: "2026-05-24", end: "2026-05-25", status: "Completed", billing: "Ready", documents: 5 },
+      { id: "JOB-1004", customer: "Westridge Resources", well: "CYPRESS B-17 FED", service: "Mud Logging", crew: "Crew A", location: "LA", start: "2026-05-29", end: "2026-06-01", status: "Delayed", billing: "Issue", documents: 0 }
+    ];
+
+    const checklist = [
+      ["Job Planning", "Confirm job scope and customer requirements", true],
+      ["Mobilization", "Assign crew, tablet, and equipment", true],
+      ["Logging", "Complete daily field ticket", false],
+      ["Logging", "Upload field notes and service data", false],
+      ["Close Out", "Submit final report and billing event", false]
+    ];
+
+    function badgeClass(status) {
+      if (status === "Completed" || status === "Ready") return "badge green";
+      if (status === "In Progress" || status === "Pending") return "badge blue";
+      if (status === "Delayed" || status === "Issue") return "badge red";
+      return "badge gray";
+    }
+
+    function filteredJobs() {
+      const q = document.getElementById("searchBox").value.toLowerCase();
+      return jobs.filter(j => Object.values(j).join(" ").toLowerCase().includes(q));
+    }
+
+    function jobTable(list) {
+      return `<div class="table-wrap"><table>
+        <thead><tr>
+          <th>Job ID</th><th>Customer</th><th>Well</th><th>Service</th><th>Crew</th><th>Dates</th><th>Status</th><th>Docs</th><th>Billing</th>
+        </tr></thead>
+        <tbody>${list.map(j => `<tr>
+          <td><strong>${j.id}</strong></td>
+          <td>${j.customer}</td>
+          <td>${j.well}</td>
+          <td>${j.service}</td>
+          <td>${j.crew}</td>
+          <td>${j.start} → ${j.end}</td>
+          <td><span class="${badgeClass(j.status)}">${j.status}</span></td>
+          <td>${j.documents}</td>
+          <td><span class="${badgeClass(j.billing)}">${j.billing}</span></td>
+        </tr>`).join("")}</tbody>
+      </table></div>`;
+    }
+
+    function showPage(page, button) {
+      activePage = page;
+      document.getElementById("pageTitle").innerText = page;
+      document.querySelectorAll(".nav").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      renderCurrent();
+    }
+
+    function renderCurrent() {
+      const list = filteredJobs();
+      const content = document.getElementById("content");
+
+      if (activePage === "Dashboard") {
+        const open = jobs.filter(j => j.status !== "Completed").length;
+        const delayed = jobs.filter(j => j.status === "Delayed").length;
+        const ready = jobs.filter(j => j.billing === "Ready").length;
+        content.innerHTML = `
+          <div class="metrics">
+            <div class="card metric-card"><p class="muted small">Total Jobs</p><h2>${jobs.length}</h2><p class="muted small">All active records</p></div>
+            <div class="card metric-card"><p class="muted small">Open Jobs</p><h2>${open}</h2><p class="muted small">Scheduled or in progress</p></div>
+            <div class="card metric-card"><p class="muted small">Delayed</p><h2>${delayed}</h2><p class="muted small">Needs review</p></div>
+            <div class="card metric-card"><p class="muted small">Billing Ready</p><h2>${ready}</h2><p class="muted small">Ready for finance</p></div>
+          </div>
+          <div class="card"><h2>All Jobs / Well Orders</h2>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Jobs") {
+        content.innerHTML = `<div class="card"><h2>All Jobs / Well Orders</h2>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Schedule") {
+        content.innerHTML = `<div class="card"><h2>Crew Scheduling Board</h2><p class="muted">Crew assignments, job dates, location, and status.</p>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Field Execution") {
+        content.innerHTML = `<div class="card"><h2>Field Execution Checklist</h2><p class="muted">Tablet-ready workflow for job planning, mobilization, logging, and close out.</p><div class="checklist">
+          ${checklist.map(t => `<div class="task"><div><p class="label">${t[0]}</p><strong>${t[1]}</strong></div><span>${t[2] ? "✅" : "⏳"}</span></div>`).join("")}
+        </div></div>`;
+      }
+
+      if (activePage === "Documents") {
+        content.innerHTML = `<div class="card"><div class="section-head"><div><h2>Centralized Document Repository</h2><p class="muted">Attach field tickets, reports, photos, invoices, and customer documents by job.</p></div><button class="secondary">Upload Document</button></div>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Master Data") {
+        content.innerHTML = `<div class="master-grid">
+          ${masterCard("Customers", ["Matador Production", "Permian Oil Corp", "Frontier Energy", "Westridge Resources"])}
+          ${masterCard("Crews", ["Crew A", "Crew B", "Crew C", "Unassigned"])}
+          ${masterCard("Services", ["Mud Logging", "Gas Detection", "Wellsite Logging", "Field Logging"])}
+        </div>`;
+      }
+    }
+
+    function masterCard(title, items) {
+      return `<div class="card"><h2>${title}</h2><div class="list">${items.map(i => `<div class="list-item">${i}</div>`).join("")}</div></div>`;
+    }
+
+    function addJob() {
+      jobs.unshift({
+        id: "JOB-" + (1000 + jobs.length + 1),
+        customer: "New SEG Customer",
+        well: "NEW WELL 01H",
+        service: "Field Logging",
+        crew: "Unassigned",
+        location: "LA",
+        start: "2026-06-02",
+        end: "2026-06-04",
+        status: "Scheduled",
+        billing: "Not Ready",
+        documents: 0
+      });
+      activePage = "Jobs";
+      document.getElementById("pageTitle").innerText = "Jobs";
+      document.querySelectorAll(".nav").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".nav")[1].classList.add("active");
+      renderCurrent();
+    }
+
+    renderCurrent();
+  </script>
+</body>
+</html>
