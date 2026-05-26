@@ -23,9 +23,10 @@
     input, select, textarea { padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 14px; width: 100%; font-family: inherit; font-size: 14px; background: white; }
     .actions input { min-width: 260px; }
     textarea { min-height: 80px; resize: vertical; }
-    button.primary, button.secondary, button.download-button { border: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; cursor: pointer; }
+    button.primary, button.secondary, button.download-button, button.small-download { border: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; cursor: pointer; }
     button.primary, button.download-button { background: #0f172a; color: white; }
     button.secondary { background: white; border: 1px solid #cbd5e1; color: #0f172a; }
+    button.small-download { background: #eef2ff; color: #1d4ed8; padding: 9px 12px; font-size: 12px; }
     .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
     .card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08); margin-bottom: 20px; }
     .metric-card h2 { font-size: 34px; margin: 8px 0; }
@@ -46,9 +47,21 @@
     .task { display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e7eb; background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
     .section-head { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
     .master-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card-title-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; }
+    .card-title-row h2 { margin: 0; }
     .list { display: grid; gap: 10px; }
     .list-item { background: #f8fafc; border: 1px solid #e5e7eb; padding: 12px; border-radius: 12px; font-weight: 600; }
-    .download-row { display: flex; justify-content: flex-end; margin-bottom: 18px; }
+    .download-row { display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+
+    .schedule-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .schedule-card { background: white; border: 1px solid #e5e7eb; border-radius: 18px; padding: 18px; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06); }
+    .schedule-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .schedule-date { font-weight: 800; color: #0f172a; }
+    .schedule-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; }
+    .schedule-meta div { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 12px; padding: 10px; }
+    .schedule-meta span { display: block; font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 800; margin-bottom: 4px; }
+    .conflict-ok { color: #166534; font-weight: 800; }
+    .conflict-risk { color: #b91c1c; font-weight: 800; }
 
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.62); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
     .modal-overlay.show { display: flex; }
@@ -64,7 +77,7 @@
       .app { flex-direction: column; }
       .sidebar { width: 100%; }
       .topbar, .actions, .section-head { flex-direction: column; align-items: stretch; }
-      .metrics, .master-grid, .form-grid { grid-template-columns: 1fr; }
+      .metrics, .master-grid, .form-grid, .schedule-board { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -194,6 +207,52 @@
       </table></div>`;
     }
 
+
+    function scheduleCards(list) {
+      if (list.length === 0) {
+        return `<div class="card"><p class="muted">No scheduled jobs match the current search.</p></div>`;
+      }
+
+      return list.map(j => {
+        const risk = getScheduleRisk(j);
+        return `<div class="schedule-card">
+          <div class="schedule-top">
+            <div>
+              <p class="label">${escapeHtml(j.crew)}</p>
+              <h2>${escapeHtml(j.well)}</h2>
+              <p class="muted">${escapeHtml(j.customer)} • ${escapeHtml(j.service)}</p>
+            </div>
+            <span class="${badgeClass(j.status)}">${escapeHtml(j.status)}</span>
+          </div>
+
+          <div class="schedule-date">${j.start} → ${j.end}</div>
+
+          <div class="schedule-meta">
+            <div><span>Location</span>${escapeHtml(j.location)}</div>
+            <div><span>Priority</span>${escapeHtml(j.priority || "Normal")}</div>
+            <div><span>Equipment</span>${escapeHtml(j.equipment || "Standard field kit")}</div>
+            <div><span>Schedule Risk</span><span class="${risk === "No conflict" ? "conflict-ok" : "conflict-risk"}">${risk}</span></div>
+          </div>
+        </div>`;
+      }).join("");
+    }
+
+    function getScheduleRisk(job) {
+      const overlapping = jobs.filter(other => {
+        if (other.id === job.id || other.crew !== job.crew) return false;
+        return job.start <= other.end && other.start <= job.end;
+      });
+      return overlapping.length > 0 ? "Possible crew conflict" : "No conflict";
+    }
+
+    function downloadScheduleData() {
+      const rows = [
+        ["Job ID", "Crew", "Customer", "Well", "Service", "Location", "Start Date", "End Date", "Priority", "Status", "Schedule Risk"],
+        ...jobs.map(j => [j.id, j.crew, j.customer, j.well, j.service, j.location, j.start, j.end, j.priority, j.status, getScheduleRisk(j)])
+      ];
+      csvDownload("SEG_Schedule_Dispatch_Board.csv", rows);
+    }
+
     function showPage(page, button) {
       activePage = page;
       document.getElementById("pageTitle").innerText = page;
@@ -225,7 +284,18 @@
       }
 
       if (activePage === "Schedule") {
-        content.innerHTML = `<div class="card"><h2>Crew Scheduling Board</h2><p class="muted">Crew assignments, job dates, location, and status.</p>${jobTable(list)}</div>`;
+        content.innerHTML = `<div class="card">
+          <div class="section-head">
+            <div>
+              <h2>Crew Scheduling / Dispatch Board</h2>
+              <p class="muted">This view is different from Jobs. It focuses on crew assignment, field coverage, dates, location, and schedule risk.</p>
+            </div>
+            <button class="secondary" onclick="downloadScheduleData()">Download Schedule</button>
+          </div>
+        </div>
+        <div class="schedule-board">
+          ${scheduleCards(list)}
+        </div>`;
       }
 
       if (activePage === "Field Execution") {
@@ -241,41 +311,68 @@
       if (activePage === "Master Data") {
         content.innerHTML = `
           <div class="download-row">
-            <button class="download-button" onclick="downloadMasterData()">Download Master Data CSV</button>
+            <button class="download-button" onclick="downloadMasterDataAll()">Download All Master Data</button>
+            <button class="download-button" onclick="downloadAllSystemData()">Download All System Data</button>
           </div>
           <div class="master-grid">
-            ${masterCard("Customers", masterCustomers)}
-            ${masterCard("Crews", masterCrews)}
-            ${masterCard("Services", masterServices)}
+            ${masterCard("Customers", masterCustomers, "Customer")}
+            ${masterCard("Crews", masterCrews, "Crew")}
+            ${masterCard("Services", masterServices, "Service")}
           </div>`;
       }
     }
 
-    function masterCard(title, items) {
-      return `<div class="card"><h2>${title}</h2><div class="list">${items.map(i => `<div class="list-item">${escapeHtml(i)}</div>`).join("")}</div></div>`;
+    function masterCard(title, items, category) {
+      return `<div class="card">
+        <div class="card-title-row">
+          <h2>${title}</h2>
+          <button class="small-download" onclick="downloadMasterCategory('${category}')">Download ${title}</button>
+        </div>
+        <div class="list">${items.map(i => `<div class="list-item">${escapeHtml(i)}</div>`).join("")}</div>
+      </div>`;
     }
 
-    function downloadMasterData() {
+    function csvDownload(filename, rows) {
+      const csv = rows
+        .map(row => row.map(cell => '"' + String(cell ?? "").replaceAll('"', '""') + '"').join(","))
+        .join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadMasterDataAll() {
       const rows = [
         ["Category", "Name"],
         ...masterCustomers.map(item => ["Customer", item]),
         ...masterCrews.map(item => ["Crew", item]),
         ...masterServices.map(item => ["Service", item])
       ];
+      csvDownload("SEG_All_Master_Data.csv", rows);
+    }
 
-      const csv = rows
-        .map(row => row.map(cell => '"' + String(cell).replaceAll('"', '""') + '"').join(","))
-        .join("\n");
+    function downloadMasterCategory(category) {
+      let items = [];
+      let filename = "SEG_Master_Data.csv";
+      if (category === "Customer") { items = masterCustomers; filename = "SEG_Customers.csv"; }
+      if (category === "Crew") { items = masterCrews; filename = "SEG_Crews.csv"; }
+      if (category === "Service") { items = masterServices; filename = "SEG_Services.csv"; }
+      const rows = [["Category", "Name"], ...items.map(item => [category, item])];
+      csvDownload(filename, rows);
+    }
 
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "SEG_Master_Data.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+    function downloadAllSystemData() {
+      const rows = [
+        ["Record Type", "Job ID", "Customer", "Well", "Service", "Crew", "Location", "Priority", "Start Date", "End Date", "Status", "Billing", "Documents", "Equipment", "Notes"],
+        ...jobs.map(j => ["Job", j.id, j.customer, j.well, j.service, j.crew, j.location, j.priority, j.start, j.end, j.status, j.billing, j.documents, j.equipment, j.notes])
+      ];
+      csvDownload("SEG_All_System_Data_Jobs.csv", rows);
     }
 
     function openJobModal() {
