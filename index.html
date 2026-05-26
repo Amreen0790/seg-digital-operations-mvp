@@ -1,20 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SEG Digital Operations MVP</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f6f8;color:#0f172a}.app{display:flex;min-height:100vh}.sidebar{width:280px;background:white;border-right:1px solid #e5e7eb;padding:20px}.brand{background:#0f172a;color:white;padding:18px;border-radius:18px;margin-bottom:24px}.brand p{margin:0;font-size:12px;text-transform:uppercase;color:#cbd5e1}.brand h1{font-size:20px;margin:8px 0}.brand span{font-size:12px;color:#cbd5e1}.nav{display:block;width:100%;border:none;background:transparent;padding:14px;margin-bottom:8px;border-radius:14px;text-align:left;font-weight:600;color:#475569;cursor:pointer}.nav:hover{background:#f1f5f9}.nav.active{background:#0f172a;color:white}.main{flex:1;padding:28px}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px}.label{font-size:12px;text-transform:uppercase;color:#64748b;font-weight:700;letter-spacing:1px}.actions{display:flex;gap:12px}input,select,textarea{padding:12px 14px;border:1px solid #cbd5e1;border-radius:14px;width:100%;font-family:inherit;font-size:14px;background:white}.actions input{min-width:260px}textarea{min-height:80px;resize:vertical}button.primary,button.secondary{border:none;padding:12px 16px;border-radius:14px;font-weight:700;cursor:pointer}button.primary{background:#0f172a;color:white}button.secondary{background:white;border:1px solid #cbd5e1;color:#0f172a}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}.card{background:white;border-radius:18px;padding:20px;box-shadow:0 1px 4px rgba(15,23,42,.08);margin-bottom:20px}.metric-card h2{font-size:34px;margin:8px 0}.small{font-size:13px}.muted{color:#64748b}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:separate;border-spacing:0 10px}th{text-align:left;color:#64748b;font-size:13px;padding:10px}td{background:white;padding:14px 10px;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb}td:first-child{border-left:1px solid #e5e7eb;border-radius:12px 0 0 12px}td:last-child{border-right:1px solid #e5e7eb;border-radius:0 12px 12px 0}.badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;display:inline-block}.green{background:#dcfce7;color:#166534}.blue{background:#dbeafe;color:#1d4ed8}.gray{background:#f1f5f9;color:#475569}.red{background:#fee2e2;color:#b91c1c}.checklist{margin-top:16px}.task{display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;background:white;border-radius:14px;padding:16px;margin-bottom:12px}.section-head{display:flex;justify-content:space-between;gap:16px;align-items:center}.master-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.list{display:grid;gap:10px}.list-item{background:#f8fafc;border:1px solid #e5e7eb;padding:12px;border-radius:12px;font-weight:600}.modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.62);z-index:1000;align-items:center;justify-content:center;padding:24px}.modal-overlay.show{display:flex}.modal{width:min(920px,100%);max-height:92vh;overflow-y:auto;background:white;border-radius:24px;padding:26px;box-shadow:0 24px 80px rgba(15,23,42,.28)}.modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}.modal-header h2{margin:0}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.form-field label{display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#64748b;margin:0 0 6px}.form-field.full{grid-column:1/-1}.modal-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb}@media(max-width:900px){.app{flex-direction:column}.sidebar{width:100%}.topbar,.actions,.section-head{flex-direction:column;align-items:stretch}.metrics,.master-grid,.form-grid{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SEG Digital Operations MVP</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f6f8; color: #0f172a; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; padding: 20px; }
+    .brand { background: #0f172a; color: white; padding: 18px; border-radius: 18px; margin-bottom: 24px; }
+    .brand p { margin: 0; font-size: 12px; text-transform: uppercase; color: #cbd5e1; }
+    .brand h1 { font-size: 20px; margin: 8px 0; }
+    .brand span { font-size: 12px; color: #cbd5e1; }
+    .nav { display: block; width: 100%; border: none; background: transparent; padding: 14px; margin-bottom: 8px; border-radius: 14px; text-align: left; font-weight: 600; color: #475569; cursor: pointer; }
+    .nav:hover { background: #f1f5f9; }
+    .nav.active { background: #0f172a; color: white; }
+    .main { flex: 1; padding: 28px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; }
+    .label { font-size: 12px; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 1px; }
+    .actions { display: flex; gap: 12px; }
+    input, select, textarea { padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 14px; width: 100%; font-family: inherit; font-size: 14px; background: white; }
+    .actions input { min-width: 260px; }
+    textarea { min-height: 80px; resize: vertical; }
+    button.primary, button.secondary, button.download-button { border: none; padding: 12px 16px; border-radius: 14px; font-weight: 700; cursor: pointer; }
+    button.primary, button.download-button { background: #0f172a; color: white; }
+    button.secondary { background: white; border: 1px solid #cbd5e1; color: #0f172a; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08); margin-bottom: 20px; }
+    .metric-card h2 { font-size: 34px; margin: 8px 0; }
+    .small { font-size: 13px; }
+    .muted { color: #64748b; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+    th { text-align: left; color: #64748b; font-size: 13px; padding: 10px; }
+    td { background: white; padding: 14px 10px; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
+    td:first-child { border-left: 1px solid #e5e7eb; border-radius: 12px 0 0 12px; }
+    td:last-child { border-right: 1px solid #e5e7eb; border-radius: 0 12px 12px 0; }
+    .badge { padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; display: inline-block; }
+    .green { background: #dcfce7; color: #166534; }
+    .blue { background: #dbeafe; color: #1d4ed8; }
+    .gray { background: #f1f5f9; color: #475569; }
+    .red { background: #fee2e2; color: #b91c1c; }
+    .checklist { margin-top: 16px; }
+    .task { display: flex; justify-content: space-between; align-items: center; border: 1px solid #e5e7eb; background: white; border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+    .section-head { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+    .master-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .list { display: grid; gap: 10px; }
+    .list-item { background: #f8fafc; border: 1px solid #e5e7eb; padding: 12px; border-radius: 12px; font-weight: 600; }
+    .download-row { display: flex; justify-content: flex-end; margin-bottom: 18px; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.62); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.show { display: flex; }
+    .modal { width: min(920px, 100%); max-height: 92vh; overflow-y: auto; background: white; border-radius: 24px; padding: 26px; box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28); }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+    .modal-header h2 { margin: 0; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .form-field label { display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px; color: #64748b; margin: 0 0 6px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+
+    @media (max-width: 900px) {
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; }
+      .topbar, .actions, .section-head { flex-direction: column; align-items: stretch; }
+      .metrics, .master-grid, .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-<div class="app"><aside class="sidebar"><div class="brand"><p>SEG Prototype</p><h1>Digital Operations Platform</h1><span>AI-assisted MVP concept</span></div><button class="nav active" onclick="showPage('Dashboard',this)">Dashboard</button><button class="nav" onclick="showPage('Jobs',this)">Jobs</button><button class="nav" onclick="showPage('Schedule',this)">Schedule</button><button class="nav" onclick="showPage('Field Execution',this)">Field Execution</button><button class="nav" onclick="showPage('Documents',this)">Documents</button><button class="nav" onclick="showPage('Master Data',this)">Master Data</button></aside><main class="main"><header class="topbar"><div><p class="label">Operations MVP</p><h1 id="pageTitle">Dashboard</h1></div><div class="actions"><input id="searchBox" placeholder="Search jobs, wells, crews..." oninput="renderCurrent()"/><button class="primary" onclick="openJobModal()">+ New Job</button></div></header><div id="content"></div></main></div>
-<div id="jobModal" class="modal-overlay"><div class="modal"><div class="modal-header"><div><p class="label">Create New Job / Well Order</p><h2>New Field Operations Job</h2><p class="muted">Add job type, crew, location, dates, billing status, and operational requirements.</p></div><button class="secondary" onclick="closeJobModal()">Close</button></div><form id="jobForm" onsubmit="submitJob(event)"><div class="form-grid"><div class="form-field"><label>Customer</label><input id="customer" required placeholder="Example: Matador Production"/></div><div class="form-field"><label>Well Name</label><input id="well" required placeholder="Example: RAES CREEK 095H"/></div><div class="form-field"><label>Service / Job Type</label><select id="service" required><option value="">Select service type</option><option>Mud Logging</option><option>Gas Detection</option><option>Wellsite Logging</option><option>Field Logging</option><option>Remote Geosteering Support</option><option>Other</option></select></div><div class="form-field"><label>Crew Assignment</label><select id="crew" required><option value="">Select crew</option><option>Crew A</option><option>Crew B</option><option>Crew C</option><option>Unassigned</option></select></div><div class="form-field"><label>Location / Basin</label><input id="location" required placeholder="Example: LA, W TX, OK"/></div><div class="form-field"><label>Priority</label><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select></div><div class="form-field"><label>Start Date</label><input id="start" type="date" required/></div><div class="form-field"><label>End Date</label><input id="end" type="date" required/></div><div class="form-field"><label>Job Status</label><select id="status"><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Delayed</option></select></div><div class="form-field"><label>Billing Status</label><select id="billing"><option>Not Ready</option><option>Pending</option><option>Ready</option><option>Issue</option></select></div><div class="form-field"><label>Expected Documents</label><input id="documents" type="number" min="0" value="0"/></div><div class="form-field"><label>Equipment / Tablet Requirement</label><select id="equipment"><option>Standard field kit</option><option>Tablet required</option><option>Gas detection kit</option><option>Logging equipment package</option></select></div><div class="form-field full"><label>Operational Requirements / Notes</label><textarea id="notes" placeholder="Example: Confirm customer scope, prepare field ticket, assign tablet, upload report after close out."></textarea></div></div><div class="modal-actions"><button type="button" class="secondary" onclick="closeJobModal()">Cancel</button><button type="submit" class="primary">Save Job</button></div></form></div></div>
-<script>
-let activePage="Dashboard";let jobs=[{id:"JOB-1001",customer:"Matador Production",well:"RAES CREEK 095H",service:"Mud Logging",crew:"Crew A",location:"LA",priority:"Normal",start:"2026-05-26",end:"2026-05-28",status:"In Progress",billing:"Pending",documents:3,equipment:"Logging equipment package",notes:"Daily field updates required."},{id:"JOB-1002",customer:"Permian Oil Corp",well:"PRAIRIE STATE 22-8H",service:"Gas Detection",crew:"Crew B",location:"W TX",priority:"High",start:"2026-05-27",end:"2026-05-29",status:"Scheduled",billing:"Not Ready",documents:1,equipment:"Gas detection kit",notes:"Confirm mobilization plan."},{id:"JOB-1003",customer:"Frontier Energy",well:"EAGLE FORD 13-61A",service:"Wellsite Logging",crew:"Crew C",location:"OK",priority:"Normal",start:"2026-05-24",end:"2026-05-25",status:"Completed",billing:"Ready",documents:5,equipment:"Standard field kit",notes:"Final report completed."},{id:"JOB-1004",customer:"Westridge Resources",well:"CYPRESS B-17 FED",service:"Mud Logging",crew:"Crew A",location:"LA",priority:"Urgent",start:"2026-05-29",end:"2026-06-01",status:"Delayed",billing:"Issue",documents:0,equipment:"Tablet required",notes:"Delay requires management review."}];
-const checklist=[["Job Planning","Confirm job scope and customer requirements",true],["Mobilization","Assign crew, tablet, and equipment",true],["Logging","Complete daily field ticket",false],["Logging","Upload field notes and service data",false],["Close Out","Submit final report and billing event",false]];
-function badgeClass(s){if(s==="Completed"||s==="Ready")return"badge green";if(s==="In Progress"||s==="Pending")return"badge blue";if(s==="Delayed"||s==="Issue"||s==="Urgent")return"badge red";return"badge gray"}function escapeHtml(t){return String(t).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}function filteredJobs(){const q=document.getElementById("searchBox").value.toLowerCase();return jobs.filter(j=>Object.values(j).join(" ").toLowerCase().includes(q))}function jobTable(list){return`<div class="table-wrap"><table><thead><tr><th>Job ID</th><th>Customer</th><th>Well</th><th>Service</th><th>Crew</th><th>Dates</th><th>Status</th><th>Docs</th><th>Billing</th></tr></thead><tbody>${list.map(j=>`<tr title="${escapeHtml(j.notes||'')}"><td><strong>${j.id}</strong></td><td>${escapeHtml(j.customer)}</td><td>${escapeHtml(j.well)}</td><td>${escapeHtml(j.service)}</td><td>${escapeHtml(j.crew)}</td><td>${j.start} → ${j.end}</td><td><span class="${badgeClass(j.status)}">${j.status}</span></td><td>${j.documents}</td><td><span class="${badgeClass(j.billing)}">${j.billing}</span></td></tr>`).join("")}</tbody></table></div>`}function showPage(page,button){activePage=page;document.getElementById("pageTitle").innerText=page;document.querySelectorAll(".nav").forEach(b=>b.classList.remove("active"));button.classList.add("active");renderCurrent()}function renderCurrent(){const list=filteredJobs();const content=document.getElementById("content");if(activePage==="Dashboard"){const open=jobs.filter(j=>j.status!=="Completed").length;const delayed=jobs.filter(j=>j.status==="Delayed").length;const ready=jobs.filter(j=>j.billing==="Ready").length;content.innerHTML=`<div class="metrics"><div class="card metric-card"><p class="muted small">Total Jobs</p><h2>${jobs.length}</h2><p class="muted small">All active records</p></div><div class="card metric-card"><p class="muted small">Open Jobs</p><h2>${open}</h2><p class="muted small">Scheduled or in progress</p></div><div class="card metric-card"><p class="muted small">Delayed</p><h2>${delayed}</h2><p class="muted small">Needs review</p></div><div class="card metric-card"><p class="muted small">Billing Ready</p><h2>${ready}</h2><p class="muted small">Ready for finance</p></div></div><div class="card"><h2>All Jobs / Well Orders</h2>${jobTable(list)}</div>`}if(activePage==="Jobs")content.innerHTML=`<div class="card"><h2>All Jobs / Well Orders</h2>${jobTable(list)}</div>`;if(activePage==="Schedule")content.innerHTML=`<div class="card"><h2>Crew Scheduling Board</h2><p class="muted">Crew assignments, job dates, location, and status.</p>${jobTable(list)}</div>`;if(activePage==="Field Execution")content.innerHTML=`<div class="card"><h2>Field Execution Checklist</h2><p class="muted">Tablet-ready workflow for job planning, mobilization, logging, and close out.</p><div class="checklist">${checklist.map(t=>`<div class="task"><div><p class="label">${t[0]}</p><strong>${t[1]}</strong></div><span>${t[2]?"✅":"⏳"}</span></div>`).join("")}</div></div>`;if(activePage==="Documents")content.innerHTML=`<div class="card"><div class="section-head"><div><h2>Centralized Document Repository</h2><p class="muted">Attach field tickets, reports, photos, invoices, and customer documents by job.</p></div><button class="secondary">Upload Document</button></div>${jobTable(list)}</div>`;if(activePage==="Master Data")content.innerHTML=`<div class="master-grid">${masterCard("Customers",["Matador Production","Permian Oil Corp","Frontier Energy","Westridge Resources"])}${masterCard("Crews",["Crew A","Crew B","Crew C","Unassigned"])}${masterCard("Services",["Mud Logging","Gas Detection","Wellsite Logging","Field Logging","Remote Geosteering Support"])}</div>`}function masterCard(title,items){return`<div class="card"><h2>${title}</h2><div class="list">${items.map(i=>`<div class="list-item">${i}</div>`).join("")}</div></div>`}function openJobModal(){document.getElementById("jobModal").classList.add("show");document.getElementById("customer").focus()}function closeJobModal(){document.getElementById("jobModal").classList.remove("show")}function submitJob(e){e.preventDefault();const newJob={id:"JOB-"+(1000+jobs.length+1),customer:customer.value,well:well.value,service:service.value,crew:crew.value,location:location.value,priority:priority.value,start:start.value,end:end.value,status:status.value,billing:billing.value,documents:Number(documents.value||0),equipment:equipment.value,notes:notes.value};jobs.unshift(newJob);jobForm.reset();documents.value=0;closeJobModal();activePage="Jobs";pageTitle.innerText="Jobs";document.querySelectorAll(".nav").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".nav")[1].classList.add("active");renderCurrent()}document.getElementById("jobModal").addEventListener("click",function(e){if(e.target===this)closeJobModal()});renderCurrent();
-</script>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <p>SEG Prototype</p>
+        <h1>Digital Operations Platform</h1>
+        <span>AI-assisted MVP concept</span>
+      </div>
+      <button class="nav active" onclick="showPage('Dashboard', this)">Dashboard</button>
+      <button class="nav" onclick="showPage('Jobs', this)">Jobs</button>
+      <button class="nav" onclick="showPage('Schedule', this)">Schedule</button>
+      <button class="nav" onclick="showPage('Field Execution', this)">Field Execution</button>
+      <button class="nav" onclick="showPage('Documents', this)">Documents</button>
+      <button class="nav" onclick="showPage('Master Data', this)">Master Data</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="label">Operations MVP</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+        <div class="actions">
+          <input id="searchBox" placeholder="Search jobs, wells, crews..." oninput="renderCurrent()" />
+          <button class="primary" onclick="openJobModal()">+ New Job</button>
+        </div>
+      </header>
+      <div id="content"></div>
+    </main>
+  </div>
+
+  <div id="jobModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <p class="label">Create New Job / Well Order</p>
+          <h2>New Field Operations Job</h2>
+          <p class="muted">Add job type, crew, location, date range, billing status, and operational notes.</p>
+        </div>
+        <button class="secondary" onclick="closeJobModal()">Close</button>
+      </div>
+
+      <form id="jobForm" onsubmit="submitJob(event)">
+        <div class="form-grid">
+          <div class="form-field"><label>Customer</label><input id="customer" required placeholder="Example: Matador Production" /></div>
+          <div class="form-field"><label>Well Name</label><input id="well" required placeholder="Example: RAES CREEK 095H" /></div>
+          <div class="form-field"><label>Service / Job Type</label><select id="service" required><option value="">Select service type</option><option>Mud Logging</option><option>Gas Detection</option><option>Wellsite Logging</option><option>Field Logging</option><option>Remote Geosteering Support</option><option>Other</option></select></div>
+          <div class="form-field"><label>Crew Assignment</label><select id="crew" required><option value="">Select crew</option><option>Crew A</option><option>Crew B</option><option>Crew C</option><option>Unassigned</option></select></div>
+          <div class="form-field"><label>Location / Basin</label><input id="location" required placeholder="Example: LA, W TX, OK" /></div>
+          <div class="form-field"><label>Priority</label><select id="priority"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
+          <div class="form-field"><label>Start Date</label><input id="start" type="date" required /></div>
+          <div class="form-field"><label>End Date</label><input id="end" type="date" required /></div>
+          <div class="form-field"><label>Job Status</label><select id="status"><option>Scheduled</option><option>In Progress</option><option>Completed</option><option>Delayed</option></select></div>
+          <div class="form-field"><label>Billing Status</label><select id="billing"><option>Not Ready</option><option>Pending</option><option>Ready</option><option>Issue</option></select></div>
+          <div class="form-field"><label>Expected Documents</label><input id="documents" type="number" min="0" value="0" /></div>
+          <div class="form-field"><label>Equipment / Tablet Requirement</label><select id="equipment"><option>Standard field kit</option><option>Tablet required</option><option>Gas detection kit</option><option>Logging equipment package</option></select></div>
+          <div class="form-field full"><label>Operational Requirements / Notes</label><textarea id="notes" placeholder="Example: Confirm customer scope, prepare field ticket, assign tablet, upload report after close out."></textarea></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="secondary" onclick="closeJobModal()">Cancel</button>
+          <button type="submit" class="primary">Save Job</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let activePage = "Dashboard";
+
+    let masterCustomers = ["Matador Production", "Permian Oil Corp", "Frontier Energy", "Westridge Resources"];
+    let masterCrews = ["Crew A", "Crew B", "Crew C", "Unassigned"];
+    let masterServices = ["Mud Logging", "Gas Detection", "Wellsite Logging", "Field Logging", "Remote Geosteering Support"];
+
+    let jobs = [
+      { id: "JOB-1001", customer: "Matador Production", well: "RAES CREEK 095H", service: "Mud Logging", crew: "Crew A", location: "LA", priority: "Normal", start: "2026-05-26", end: "2026-05-28", status: "In Progress", billing: "Pending", documents: 3, equipment: "Logging equipment package", notes: "Daily field updates required." },
+      { id: "JOB-1002", customer: "Permian Oil Corp", well: "PRAIRIE STATE 22-8H", service: "Gas Detection", crew: "Crew B", location: "W TX", priority: "High", start: "2026-05-27", end: "2026-05-29", status: "Scheduled", billing: "Not Ready", documents: 1, equipment: "Gas detection kit", notes: "Confirm mobilization plan." },
+      { id: "JOB-1003", customer: "Frontier Energy", well: "EAGLE FORD 13-61A", service: "Wellsite Logging", crew: "Crew C", location: "OK", priority: "Normal", start: "2026-05-24", end: "2026-05-25", status: "Completed", billing: "Ready", documents: 5, equipment: "Standard field kit", notes: "Final report completed." },
+      { id: "JOB-1004", customer: "Westridge Resources", well: "CYPRESS B-17 FED", service: "Mud Logging", crew: "Crew A", location: "LA", priority: "Urgent", start: "2026-05-29", end: "2026-06-01", status: "Delayed", billing: "Issue", documents: 0, equipment: "Tablet required", notes: "Delay requires management review." }
+    ];
+
+    const checklist = [
+      ["Job Planning", "Confirm job scope and customer requirements", true],
+      ["Mobilization", "Assign crew, tablet, and equipment", true],
+      ["Logging", "Complete daily field ticket", false],
+      ["Logging", "Upload field notes and service data", false],
+      ["Close Out", "Submit final report and billing event", false]
+    ];
+
+    function badgeClass(status) {
+      if (status === "Completed" || status === "Ready") return "badge green";
+      if (status === "In Progress" || status === "Pending") return "badge blue";
+      if (status === "Delayed" || status === "Issue") return "badge red";
+      return "badge gray";
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function filteredJobs() {
+      const q = document.getElementById("searchBox").value.toLowerCase();
+      return jobs.filter(j => Object.values(j).join(" ").toLowerCase().includes(q));
+    }
+
+    function jobTable(list) {
+      return `<div class="table-wrap"><table>
+        <thead><tr><th>Job ID</th><th>Customer</th><th>Well</th><th>Service</th><th>Crew</th><th>Dates</th><th>Status</th><th>Docs</th><th>Billing</th></tr></thead>
+        <tbody>${list.map(j => `<tr>
+          <td><strong>${j.id}</strong></td>
+          <td>${escapeHtml(j.customer)}</td>
+          <td>${escapeHtml(j.well)}</td>
+          <td>${escapeHtml(j.service)}</td>
+          <td>${escapeHtml(j.crew)}</td>
+          <td>${j.start} → ${j.end}</td>
+          <td><span class="${badgeClass(j.status)}">${j.status}</span></td>
+          <td>${j.documents}</td>
+          <td><span class="${badgeClass(j.billing)}">${j.billing}</span></td>
+        </tr>`).join("")}</tbody>
+      </table></div>`;
+    }
+
+    function showPage(page, button) {
+      activePage = page;
+      document.getElementById("pageTitle").innerText = page;
+      document.querySelectorAll(".nav").forEach(b => b.classList.remove("active"));
+      button.classList.add("active");
+      renderCurrent();
+    }
+
+    function renderCurrent() {
+      const list = filteredJobs();
+      const content = document.getElementById("content");
+
+      if (activePage === "Dashboard") {
+        const open = jobs.filter(j => j.status !== "Completed").length;
+        const delayed = jobs.filter(j => j.status === "Delayed").length;
+        const ready = jobs.filter(j => j.billing === "Ready").length;
+        content.innerHTML = `
+          <div class="metrics">
+            <div class="card metric-card"><p class="muted small">Total Jobs</p><h2>${jobs.length}</h2><p class="muted small">All active records</p></div>
+            <div class="card metric-card"><p class="muted small">Open Jobs</p><h2>${open}</h2><p class="muted small">Scheduled or in progress</p></div>
+            <div class="card metric-card"><p class="muted small">Delayed</p><h2>${delayed}</h2><p class="muted small">Needs review</p></div>
+            <div class="card metric-card"><p class="muted small">Billing Ready</p><h2>${ready}</h2><p class="muted small">Ready for finance</p></div>
+          </div>
+          <div class="card"><h2>All Jobs / Well Orders</h2>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Jobs") {
+        content.innerHTML = `<div class="card"><h2>All Jobs / Well Orders</h2>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Schedule") {
+        content.innerHTML = `<div class="card"><h2>Crew Scheduling Board</h2><p class="muted">Crew assignments, job dates, location, and status.</p>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Field Execution") {
+        content.innerHTML = `<div class="card"><h2>Field Execution Checklist</h2><p class="muted">Tablet-ready workflow for job planning, mobilization, logging, and close out.</p><div class="checklist">
+          ${checklist.map(t => `<div class="task"><div><p class="label">${t[0]}</p><strong>${t[1]}</strong></div><span>${t[2] ? "✅" : "⏳"}</span></div>`).join("")}
+        </div></div>`;
+      }
+
+      if (activePage === "Documents") {
+        content.innerHTML = `<div class="card"><div class="section-head"><div><h2>Centralized Document Repository</h2><p class="muted">Attach field tickets, reports, photos, invoices, and customer documents by job.</p></div><button class="secondary">Upload Document</button></div>${jobTable(list)}</div>`;
+      }
+
+      if (activePage === "Master Data") {
+        content.innerHTML = `
+          <div class="download-row">
+            <button class="download-button" onclick="downloadMasterData()">Download Master Data CSV</button>
+          </div>
+          <div class="master-grid">
+            ${masterCard("Customers", masterCustomers)}
+            ${masterCard("Crews", masterCrews)}
+            ${masterCard("Services", masterServices)}
+          </div>`;
+      }
+    }
+
+    function masterCard(title, items) {
+      return `<div class="card"><h2>${title}</h2><div class="list">${items.map(i => `<div class="list-item">${escapeHtml(i)}</div>`).join("")}</div></div>`;
+    }
+
+    function downloadMasterData() {
+      const rows = [
+        ["Category", "Name"],
+        ...masterCustomers.map(item => ["Customer", item]),
+        ...masterCrews.map(item => ["Crew", item]),
+        ...masterServices.map(item => ["Service", item])
+      ];
+
+      const csv = rows
+        .map(row => row.map(cell => '"' + String(cell).replaceAll('"', '""') + '"').join(","))
+        .join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "SEG_Master_Data.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function openJobModal() {
+      document.getElementById("jobModal").classList.add("show");
+      setTimeout(() => document.getElementById("customer").focus(), 50);
+    }
+
+    function closeJobModal() {
+      document.getElementById("jobModal").classList.remove("show");
+    }
+
+    function submitJob(event) {
+      event.preventDefault();
+      const newJob = {
+        id: "JOB-" + (1000 + jobs.length + 1),
+        customer: document.getElementById("customer").value,
+        well: document.getElementById("well").value,
+        service: document.getElementById("service").value,
+        crew: document.getElementById("crew").value,
+        location: document.getElementById("location").value,
+        priority: document.getElementById("priority").value,
+        start: document.getElementById("start").value,
+        end: document.getElementById("end").value,
+        status: document.getElementById("status").value,
+        billing: document.getElementById("billing").value,
+        documents: Number(document.getElementById("documents").value || 0),
+        equipment: document.getElementById("equipment").value,
+        notes: document.getElementById("notes").value
+      };
+
+      jobs.unshift(newJob);
+      document.getElementById("jobForm").reset();
+      document.getElementById("documents").value = 0;
+      closeJobModal();
+      activePage = "Jobs";
+      document.getElementById("pageTitle").innerText = "Jobs";
+      document.querySelectorAll(".nav").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".nav")[1].classList.add("active");
+      renderCurrent();
+    }
+
+    document.getElementById("jobModal").addEventListener("click", function(event) {
+      if (event.target === this) closeJobModal();
+    });
+
+    renderCurrent();
+  </script>
 </body>
 </html>
